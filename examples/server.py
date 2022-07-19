@@ -10,13 +10,25 @@ import uuid
 from ndsharray import ndsharray
 import numpy as np
 
+# choose a shape
+_shape_vid = (720, 1280, 3)  # normal video camera
+
+_shape_bigdata = (10000, 5000)  # big data
+
+_shape = _shape_vid
+
 
 def main():
+    global _shape
 
     # create mapping ndsharray
     _tag = uuid.uuid4().hex
     print("using tag for sharing the numpy array: %s" % _tag)
     shared_array = ndsharray(_tag)
+
+    # write first time before opening the client - so you will not get a PermissionError: [WinError 5] Access Denied
+    array = (255*np.random.random(_shape).astype(np.float32)).astype(np.uint8)  # simulate a noisy image
+    shared_array.write(array)
 
     _client = os.path.join(os.path.abspath(os.path.dirname(__file__)), "client.py")
 
@@ -28,7 +40,7 @@ def main():
 
     try:
         while True:
-            array = (255 * np.random.random((720, 1280, 3))).astype(np.uint8)  # simulate a noisy image
+            array = (255*np.random.random(_shape).astype(np.float32)).astype(np.uint8)  # simulate a noisy image
 
             # write image
             start = time.perf_counter()
