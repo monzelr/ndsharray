@@ -33,8 +33,16 @@ print(my_array)
 
 Some technical notes
 --------------------
-This library shall be an easy to use library and also shall be faster than pickling numpy arrays to another process. Please note that the python's provided [shared_memory](https://docs.python.org/3/library/multiprocessing.shared_memory.html) is a faster approach than ndsharray! However, shared_memory is available since python 3.8 and not supported for python 3.6. 
+This library shall be an easy to use library and also shall be faster than pickling numpy arrays to another process. Please note that the python's provided [shared_memory](https://docs.python.org/3/library/multiprocessing.shared_memory.html) is a faster approach than ndsharray! However, shared_memory is available since python 3.8 and not supported for python 3.6.
+The pefomance of this library is good enough for video streaming (see also example)!
 
+Example Code
+------------
+In folder ndsharray/examples is an example. This example shows a simpole Server / Client connection sharing a numpy array every 5 seconds. 
+```
+python server.py
+```
+Note: Always start the ndsharray-writer first! If you start the reader first, you may will get an **Access Deny Error**!
 
 Requirements
 ------------ 
@@ -64,7 +72,7 @@ Alternative with python:
 
 To Dos
 ------
-- Unit Test
+- Unit Tests of all numpy arrays
 - Documentation
-- implementation for Linux
-- im for the faster approach with [shared_memory](https://docs.python.org/3/library/multiprocessing.shared_memory.html)
+- implementation for Linux/Arm64 devices
+- implement the faster approach with [shared_memory](https://docs.python.org/3/library/multiprocessing.shared_memory.html)
