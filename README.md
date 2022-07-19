@@ -40,9 +40,10 @@ Requirements
 ------------ 
 - Python ≥ 3.6
 - numpy
+- currently only for Windows amd64
 
-Note: Tested on Windows 10, amd64, Python 3.6 / 3.8
-Will currently notwork on Linux, MacOS and on AARCH64 devices (ARM devices like Raspberry PI).
+Note: Tested on Windows 10, amd64, Python 3.6 / 3.8 \
+**Will currently not work on Linux, MacOS and on AARCH64 devices (ARM devices like Raspberry PI).**
 
 
 Installation
