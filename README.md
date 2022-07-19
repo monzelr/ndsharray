@@ -5,8 +5,9 @@ ndarray + sharing = ndsharray
 Overview
 --------
 This python module let you share numpy ndarray with difference processes (either via python's multiprocessing or sharing between different python instances). The library behind this package is the lib [mmap](https://docs.python.org/3/library/mmap.html) from official python - no extra library is needed.
-This library is eas to use, just intialize the shared array with unique tag:
+This library is eas to use, just intialize the shared array with unique tag and write/read! You can even change the numpy array size/shape/dtype during runtime - the mmap will be automatically rebuild if there is a change in the numpy array size/shape/dtype.
 
+Small Example Code:
 ```python
 import numpy as np
 from ndsharray import ndsharray
@@ -38,17 +39,17 @@ The pefomance of this library is good enough for video streaming (see also examp
 
 Example Code
 ------------
-In folder ndsharray/examples is an example. This example shows a simpole Server / Client connection sharing a numpy array every 5 seconds. 
+In folder ndsharray/examples is an example. This example shows a simple Server / Client connection sharing a numpy array every 5 seconds. 
 ```
 python server.py
 ```
-Note: Always start the ndsharray-writer first! If you start the reader first, you may will get an **Access Deny Error**!
+Note: Always start the ndsharray-writer first! If you start the reader first, you may will get an **Access Denied Error**!
 
 Requirements
 ------------ 
 - Python ≥ 3.6
 - numpy
-- currently only for Windows amd64
+- Windows amd64
 
 Note: Tested on Windows 10, amd64, Python 3.6 / 3.8 \
 **Will currently not work on Linux, MacOS and on AARCH64 devices (ARM devices like Raspberry PI).**
