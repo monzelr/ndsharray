@@ -1,5 +1,5 @@
 # python packages
-from mmap import mmap, ACCESS_READ, ACCESS_DEFAULT, ACCESS_WRITE
+from mmap import mmap  # python >= 3.7: ACCESS_READ, ACCESS_DEFAULT, ACCESS_WRITE
 import time
 import os
 import sys

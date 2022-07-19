@@ -15,6 +15,7 @@ def main():
 
     # create mapping ndsharray
     _tag = uuid.uuid4().hex
+    print("using tag for sharing the numpy array: %s" % _tag)
     shared_array = ndsharray(_tag)
 
     _client = os.path.join(os.path.abspath(os.path.dirname(__file__)), "client.py")
