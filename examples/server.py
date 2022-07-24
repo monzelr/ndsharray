@@ -24,7 +24,7 @@ def main():
     # create mapping ndsharray
     _tag = uuid.uuid4().hex
     print("using tag for sharing the numpy array: %s" % _tag)
-    shared_array = ndsharray(_tag, r_w='w')
+    shared_array = ndsharray(_tag, r_w='w')  # Note: r_w='r' is necessary for POSIX OS
 
     # write first time before opening the client - so you will not get a PermissionError: [WinError 5] Access Denied
     array = (255*np.random.random(_shape).astype(np.float32)).astype(np.uint8)  # simulate a noisy image
