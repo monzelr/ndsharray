@@ -1,5 +1,6 @@
 # python packages
 from mmap import mmap  # python >= 3.7: ACCESS_READ, ACCESS_DEFAULT, ACCESS_WRITE
+from mmap import MAP_SHARED, PROT_WRITE, PROT_READ
 import time
 import os
 import sys
@@ -53,10 +54,12 @@ class ndsharray(object):
 
     """
 
-    def __init__(self, tag_name: str, array: np.ndarray = np.ndarray((0, ), dtype=np.uint8)):
+    def __init__(self, tag_name: str, array: np.ndarray = np.ndarray((0, ), dtype=np.uint8),
+                 r_w: Union[str, None] = None):
         """
         :param tag_name:
         :param array:
+        :param r_w: 'r' or 'w' for 'read' or 'write' functionality, needed for linux/macOS operation systems only
         """
         object.__init__(self)
 
@@ -73,9 +76,35 @@ class ndsharray(object):
         self._tag_name = tag_name
 
         # initialize mmap
-        self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)
+        if os.name == "nt":
+            self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)
+        elif os.name == "posix":
+            if r_w == "w":
+                self._fd = os.open("/tmp/%s" % self._tag_name, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
+                os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+                self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED)
+            elif r_w == "r":
+                self._fd = os.open("/tmp/%s" % self._tag_name, os.O_RDONLY)
+                # os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+                self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED, PROT_READ)
+            else:
+                raise ValueError("'r' or 'w' must be specified for posix operation system.")
+        else:
+            raise OSError("%s is not supported." % os.name)
 
     def __del__(self):
+        # closing the file
+        if os.name == "posix":
+            os.close(self._fd)
+            # _closed = False
+            # while not _closed:
+            #     try:
+            #         _stat = os.fstat(self._fd)
+            #         print("while True")
+            #     except OSError as oe:
+            #         print(oe)
+            #         _closed = True
+
         # closing the mmap
         self._mmap.close()
         while not self._mmap.closed:
@@ -176,7 +205,10 @@ class ndsharray(object):
             return False, False, _array
         _byte_array = _bytes[idx:-20]
         idx = len(_bytes) - 20
-        _time_end = datetime.strptime(_bytes[idx:].decode('utf-8'), "%Y%m%d%H%M%S%f")
+        try:
+            _time_end = datetime.strptime(_bytes[idx:].decode('utf-8'), "%Y%m%d%H%M%S%f")
+        except ValueError:
+            _time_end = datetime.min
 
         _validity = _time_start == _time_end
 
@@ -198,11 +230,29 @@ class ndsharray(object):
             self._array = array.copy()
             self._buffer_size = len(_bytes)
 
+            if os.name == "posix":
+                os.close(self._fd)
+                _closed = False
+                # while not _closed:
+                #     try:
+                #         _stat = os.fstat(self._fd)
+                #         print("while True")
+                #     except OSError as oe:
+                #         print(oe)
+                #         _closed = True
+
             self._mmap.close()
             while not self._mmap.closed:
                 time.sleep(0.001)
 
-            self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)  # , access=ACCESS_WRITE
+            if os.name == "nt":
+                self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)  # , access=ACCESS_WRITE
+            elif os.name == "posix":
+                self._fd = os.open("/tmp/%s" % self._tag_name, os.O_TRUNC | os.O_RDWR)
+                os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+                self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED, PROT_WRITE)
+            else:
+                raise OSError("%s is not supported." % os.name)
 
         self._mmap.seek(0)
         self._mmap.write(_bytes)
@@ -284,12 +334,30 @@ class ndsharray(object):
         _bytes = self._array_to_bytes(self._array)
         self._buffer_size = len(_bytes)
 
+        if os.name == "posix":
+            os.close(self._fd)
+            # _closed = False
+            # while not _closed:
+            #     try:
+            #         _stat = os.fstat(self._fd)
+            #         print("while True")
+            #     except OSError as oe:
+            #         print(oe)
+            #         _closed = True
+
         self._mmap.close()
         while not self._mmap.closed:
             time.sleep(0.001)
 
         # rebuild mmap
-        self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)  # , access=ACCESS_READ
+        if os.name == "nt":
+            self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)  # , access=ACCESS_WRITE
+        elif os.name == "posix":
+            self._fd = os.open("/tmp/%s" % self._tag_name, os.O_RDONLY)
+            #os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+            self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED, PROT_READ)
+        else:
+            raise OSError("%s is not supported." % os.name)
 
         # read the whole buffer at once
         self._mmap.seek(0)

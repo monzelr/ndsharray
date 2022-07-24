@@ -24,7 +24,7 @@ def main():
     # create mapping ndsharray
     _tag = uuid.uuid4().hex
     print("using tag for sharing the numpy array: %s" % _tag)
-    shared_array = ndsharray(_tag)
+    shared_array = ndsharray(_tag, r_w='w')
 
     # write first time before opening the client - so you will not get a PermissionError: [WinError 5] Access Denied
     array = (255*np.random.random(_shape).astype(np.float32)).astype(np.uint8)  # simulate a noisy image
@@ -36,7 +36,7 @@ def main():
     if os.name == "nt":  # windows
         subprocess.Popen([sys.executable, _client, _tag], creationflags=subprocess.CREATE_NEW_CONSOLE)
     elif os.name == "posix":  # linux / macOS
-        subprocess.Popen([sys.executable, _client, _tag])
+        subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', sys.executable + " " + _client + " " + _tag])
 
     try:
         while True:
