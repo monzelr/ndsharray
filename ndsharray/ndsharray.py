@@ -1,12 +1,12 @@
 # python packages
-from mmap import mmap  # python >= 3.7: ACCESS_READ, ACCESS_DEFAULT, ACCESS_WRITE
-from mmap import MAP_SHARED, PROT_WRITE, PROT_READ
-import time
 import os
+from mmap import mmap  # python >= 3.7: ACCESS_READ, ACCESS_DEFAULT, ACCESS_WRITE
+if os.name == "posix":
+    from mmap import MAP_SHARED, PROT_WRITE, PROT_READ
+import time
 import sys
 from typing import Union, List, Tuple
-import time
-from datetime import datetime
+import struct
 
 # external python packages
 import numpy as np
@@ -64,7 +64,7 @@ class ndsharray(object):
         object.__init__(self)
 
         # initialize last read time
-        self._last_write_time = datetime.min
+        self._last_write_time = time.monotonic()
         self._read_time_ms = 0.0
 
         # save numpy array and its properties, this array is used for reading and writing
@@ -124,7 +124,7 @@ class ndsharray(object):
         encodes a numpy array to bytes using an own protocol
 
         protocol usage:
-        - write-time (20 bytes)
+        - write-time (8 bytes)
         - numpy dtype index (integer, 8 bytes)
         - number of dimension (integer, 8 bytes)
         - length of axis (array dimension) 0 (integer, 8 bytes)
@@ -134,7 +134,7 @@ class ndsharray(object):
         - length of axis (array dimension) . (integer, 8 bytes)
         - length of axis (array dimension) n (integer, 8 bytes)
         - bytes of numpy array
-        - write-time (20 bytes)
+        - write-time (8 bytes)
 
         note: size of integer may defer because the maximum integer size sys.maxsize will be used (on python3, amd64
         it is 8 byte)
@@ -152,7 +152,7 @@ class ndsharray(object):
                                       "The following numpy.dtypes are supported: %s"
                                       % (str(array.dtype), str([_t.__name__ for _t in supported_types])))
 
-        _time = datetime.now().strftime("%Y%m%d%H%M%S%f").zfill(20).encode('utf_8')
+        _time = struct.pack("d", time.monotonic())
 
         _bytes = b''
         _bytes += _time
@@ -185,8 +185,8 @@ class ndsharray(object):
         _array = np.ndarray((0, ))
 
         idx = 0
-        _time_start = datetime.strptime(_bytes[idx:20].decode('utf-8'), "%Y%m%d%H%M%S%f")
-        idx += 20
+        _time_start = struct.unpack("d", _bytes[idx:8])[0]
+        idx += 8
         _np_dtype = supported_types[bytes_to_int(_bytes[idx:idx+nbytes_for_int])]
         idx += nbytes_for_int
         if _np_dtype != self._array.dtype:
@@ -202,12 +202,12 @@ class ndsharray(object):
         _np_shape = tuple(_np_shape)
         if _np_shape != self._array.shape:
             return False, False, _array
-        _byte_array = _bytes[idx:-20]
-        idx = len(_bytes) - 20
+        _byte_array = _bytes[idx:-8]
+        idx = len(_bytes) - 8
         try:
-            _time_end = datetime.strptime(_bytes[idx:].decode('utf-8'), "%Y%m%d%H%M%S%f")
+            _time_end = struct.unpack("d", _bytes[idx:])[0]
         except ValueError:
-            _time_end = datetime.min
+            _time_end = 0
 
         _validity = _time_start == _time_end
 
@@ -273,11 +273,11 @@ class ndsharray(object):
 
         # first stage of checking if new data have been arrived
         self._mmap.seek(0)
-        _bytes = self._mmap.read(20)
+        _bytes = self._mmap.read(8)
         try:
-            _write_time = datetime.strptime(_bytes.decode('utf-8'), "%Y%m%d%H%M%S%f")
+            _write_time = struct.unpack("d", _bytes)[0]
         except ValueError:
-            _write_time = datetime.min
+            _write_time = 0
         if _write_time <= self._last_write_time:
             return False, _numpy_array
 
@@ -297,7 +297,7 @@ class ndsharray(object):
         # for efficiency
         self._array = _numpy_array
         # for debug purpose
-        self._read_time_ms = (datetime.now()-_write_time).total_seconds() * 1000.0
+        self._read_time_ms = (time.monotonic()-_write_time) * 1000.0
         self._last_write_time = _write_time
 
         return _validity, _numpy_array
@@ -313,8 +313,8 @@ class ndsharray(object):
 
         # read dtype and dimension of numpy array
         self._mmap.seek(0)
-        _bytes = self._mmap.read(20+2*nbytes_for_int)  # skip the time: +20
-        idx = 20
+        _bytes = self._mmap.read(8+2*nbytes_for_int)  # skip the time: +8
+        idx = 8
         _np_dtype = supported_types[bytes_to_int(_bytes[idx:idx+nbytes_for_int])]
         idx += nbytes_for_int
         _np_dim = bytes_to_int(_bytes[idx:idx+nbytes_for_int])
