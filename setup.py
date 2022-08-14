@@ -57,8 +57,7 @@ version, author, author_email = find_version_author_email(SOFTWARE_NAME, '__init
 from sphinx.setup_command import BuildDoc
 
 
-requirements = ["numpy>=1.13.0",
-                "sphinx"]
+requirements = ["numpy>=1.13.0"]
 
 test_requirements = ["numpy>=1.13.0"]
 
