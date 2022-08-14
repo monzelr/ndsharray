@@ -14,9 +14,7 @@ def main():
     
     _tag = sys.argv[1]
     print("connecting to tag %s" % _tag)
-    shared_array = ndsharray(_tag, r_w = 'r')
-
-    time.sleep(1)
+    shared_array = ndsharray(_tag, r_w='r')  # Note: r_w='r' is necessary for POSIX OS
 
     while True:
         # read image
@@ -29,13 +27,11 @@ def main():
             print("array sum: %i" % np.sum(array))
             # print(array)
             print()
-        else:
-            time.sleep(0.01)
+
+        time.sleep(0)
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(e)
-        input()
+
+    main()
+

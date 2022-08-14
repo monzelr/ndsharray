@@ -80,12 +80,11 @@ class ndsharray(object):
             self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)
         elif os.name == "posix":
             if r_w == "w":
-                self._fd = os.open("/tmp/%s" % self._tag_name, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
-                os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+                self._fd = os.open("/dev/shm/%s" % self._tag_name, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
+                os.truncate("/dev/shm/%s" % self._tag_name, self._buffer_size)  # resize file
                 self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED)
             elif r_w == "r":
-                self._fd = os.open("/tmp/%s" % self._tag_name, os.O_RDONLY)
-                # os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+                self._fd = os.open("/dev/shm/%s" % self._tag_name, os.O_RDONLY)
                 self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED, PROT_READ)
             else:
                 raise ValueError("'r' or 'w' must be specified for posix operation system.")
@@ -248,8 +247,8 @@ class ndsharray(object):
             if os.name == "nt":
                 self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)  # , access=ACCESS_WRITE
             elif os.name == "posix":
-                self._fd = os.open("/tmp/%s" % self._tag_name, os.O_TRUNC | os.O_RDWR)
-                os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+                self._fd = os.open("/dev/shm/%s" % self._tag_name, os.O_TRUNC | os.O_RDWR)
+                os.truncate("/dev/shm/%s" % self._tag_name, self._buffer_size)  # resize file
                 self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED, PROT_WRITE)
             else:
                 raise OSError("%s is not supported." % os.name)
@@ -353,8 +352,7 @@ class ndsharray(object):
         if os.name == "nt":
             self._mmap: mmap = mmap(-1, self._buffer_size, self._tag_name)  # , access=ACCESS_WRITE
         elif os.name == "posix":
-            self._fd = os.open("/tmp/%s" % self._tag_name, os.O_RDONLY)
-            #os.truncate("/tmp/%s" % self._tag_name, self._buffer_size)  # resize file
+            self._fd = os.open("/dev/shm/%s" % self._tag_name, os.O_RDONLY)
             self._mmap: mmap = mmap(self._fd, self._buffer_size, MAP_SHARED, PROT_READ)
         else:
             raise OSError("%s is not supported." % os.name)
