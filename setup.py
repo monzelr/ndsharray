@@ -57,17 +57,18 @@ version, author, author_email = find_version_author_email(SOFTWARE_NAME, '__init
 from sphinx.setup_command import BuildDoc
 
 
-requirements = ["numpy>=1.13.0"]
+requirements = ["numpy"]
 
-test_requirements = ["numpy>=1.13.0"]
+test_requirements = ["numpy"]
 
 python_requires = '>=3.6'
 classifiers = [
-    'Development Status :: 2 - Pre-Alpha',
+    'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
     'Natural Language :: English',
     'License :: OSI Approved :: BSD License',
     'Operating System :: POSIX',
+    'Operating System :: UNIX',
     'Operating System :: Microsoft :: Windows',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3.6',
@@ -78,8 +79,8 @@ classifiers = [
 ]
 description = "Sharing numpy ndarray with a simple interface between different (sub)processes."
 install_requires = requirements
-long_description = ""
-keywords = 'sharing numpy arrays, inter process communication, subprocess, multiple process sharing one ndarray'
+long_description = "This module uses python's mmap to share numpy ndarray. One process share's the "
+keywords = 'sharing numpy arrays, inter process communication, subprocess, multiple process reading a numpy ndarray'
 name = SOFTWARE_NAME
 test_suite = 'tests'
 url = 'https://gitlab.com/monzelr/' + SOFTWARE_NAME

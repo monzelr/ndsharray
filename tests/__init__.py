@@ -1,1 +1,1 @@
-"""Unit test package for dmx."""
+"""Unit test package for ndsharray."""
