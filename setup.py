@@ -7,6 +7,7 @@ import os
 import io
 import os
 import re
+from pathlib import Path
 
 from setuptools import setup
 
@@ -76,13 +77,13 @@ classifiers = [
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
 ]
-description = "Sharing numpy ndarray with a simple interface between different (sub)processes."
+description = "Sharing numpy ndarray with a simple API between different python processes with shared memory."
 install_requires = requirements
-long_description = "This module uses python's mmap to share numpy ndarray. One process share's the "
+long_description = (Path(__file__).parent / "README.md").read_text()  # read the contents of your README file
 keywords = 'sharing numpy arrays, inter process communication, subprocess, multiple process reading a numpy ndarray'
 name = SOFTWARE_NAME
 test_suite = 'tests'
-url = 'https://gitlab.com/monzelr/' + SOFTWARE_NAME
+url = 'https://github.com/monzelr/' + SOFTWARE_NAME
 zip_safe = False
 
 setup(
@@ -102,6 +103,8 @@ setup(
     license="BSD 3-Clause License",
     version=version,
     zip_safe=zip_safe,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     command_options = {
                       'build_sphinx': {
                           'project': ('setup.py', name),
