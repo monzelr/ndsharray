@@ -10,10 +10,10 @@ sharing between different python instances). The library behind this package is 
 The mmap approach is using the shared memory, which can be accessed by different CPUs/python instances. Using shared 
 memory is much 
 faster than the pickle approach - you can even do a video streaming on a Raspberry Pi / Jetson Nano over multiple 
-python processes\
-This library is eas to use, just initialize the shared array with a unique tag and write/read! You can even change the 
-numpy array size/shape/dtype during runtime - the mmap will be silently rebuild if there is a change in the numpy array 
-size/shape/dtype.
+python processes.\
+This library is easy-to-use, just initialize the shared array with a unique tag and write/read! You can even change the 
+numpy array dimension/shape/dtype during runtime - the mmap will be silently rebuild if there is a change in the 
+numpy array  size/shape/dtype.
 
 Small Example Code:
 ```python
@@ -62,21 +62,22 @@ Please note that the python's provided
 [shared_memory](https://docs.python.org/3/library/multiprocessing.shared_memory.html) does the same as ndsharray, but 
 is using byte array instead of numpy array! However, shared_memory is available since python 3.8 and not 
 supported for python 3.6.
-The performance of this library is good enough for video streaming (see also example)!
 
 
 Installation from Github
 ------------------------
 Make sure to have git, python and pip in your environment path or activate your python environment.\
 To install enter in cmd/shell:
+```console
+git clone https://github.com/monzelr/ndsharray.git
 
-    git clone https://github.com/monzelr/ndsharray.git
+cd ndsharray
 
-    cd ndsharray
-
-    pip install .
+pip install .
+```
 
 Alternative with python:
-
-    python setup.py install
+```console
+python setup.py install
+```
 
