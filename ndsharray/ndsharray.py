@@ -102,7 +102,7 @@ class NdShArray(object):
             raise ValueError("'r' or 'w' must be specified for input argument 'r_w'.")
 
         # initialize last read time
-        self._last_write_time: float = time.monotonic()
+        self._last_write_time: float = 0.0  # set to zero to get in every case the next numpy array
         self._read_time_ms: float = 0.0
 
         # unique identifier for the ndarray mmap name
@@ -460,7 +460,7 @@ class NdShArray(object):
         """
 
         # closing the mmap
-        if isinstance(_mmap, mmap.mmap):
+        if _mmap is not None:
             # closing the mmap
             _mmap.close()
             while not _mmap.closed:

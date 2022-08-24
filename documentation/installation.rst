@@ -2,47 +2,65 @@
 Installation
 ============
 
+Via pip
+-------
 
-From sources
-------------
+This module can be found on pipy: `https://pypi.org/project/ndsharray/`_
 
-The sources for ndsharray can be found in the github `github repo`_.
-
-You should clone the private repository:
-
-.. code-block:: console
-
-    $ git clone git://gitlab.com/monzelr/ndsharray
-
-Best practice is just to link the source doe to your python environment via the develop command:
+For installation, first activate your environment, and then install ndsharray:
 
 .. code-block:: console
 
-    $ cd ndsharray
-    $ pip install ndsharray
+    pip install ndsharray
 
 To uninstall the python package, type in this command:
 
 .. code-block:: console
 
-    $ pip uninstall ndsharray
+    pip uninstall ndsharray
 
-Of course, you can also install the package with python:
+
+From sources
+------------
+
+The sources for ndsharray can be found in the github `github repository`_.
+
+Clone the repository:
+
+.. code-block:: console
+
+    git clone git://gitlab.com/monzelr/ndsharray
+
+Best practice is just to link the source to to your python environment via the develop command:
+
+.. code-block:: console
+
+    cd ndsharray
+    python setup.py develop
+
+Of course, you can also install the package with python normally:
 
 .. code-block:: console
 
     $ python setup.py install
 
-For deployment
---------------
+To uninstall the python package, type in this command:
+
+.. code-block:: console
+
+    pip uninstall ndsharray
+
+
+
+Distribution
+------------
 If you want to distribute the package, please build a python wheel which can be distributed:
 
 .. code-block:: console
 
-    $ python setup.py build_ext
-    $ python setup.py bdist_wheel
+    python setup.py bdist_wheel
 
-The wheel contains compiled machine code which is not readable for humans. Thus it can be deployed savely.
 The wheel can be installed with the pip command.
 
-.. _github repo: https://github.com/monzelr/ndsharray
+.. _github repository: https://github.com/monzelr/ndsharray
+.. _https://pypi.org/project/ndsharray/: https://pypi.org/project/ndsharray/
