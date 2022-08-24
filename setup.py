@@ -63,7 +63,7 @@ test_requirements = ["numpy"]
 
 python_requires = '>=3.6'
 classifiers = [
-    'Development Status :: 3 - Alpha',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'Natural Language :: English',
     'License :: OSI Approved :: BSD License',
