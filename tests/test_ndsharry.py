@@ -50,8 +50,6 @@ class Testndsharray(unittest.TestCase):
     """Tests for `NdShArray` package."""
 
     # queues
-    _command_queue_snd: multiprocessing.Queue = multiprocessing.Queue()
-    _command_queue_rcv: multiprocessing.Queue = multiprocessing.Queue()
     _queue_logger: multiprocessing.Queue = multiprocessing.Queue()
 
     # events
@@ -91,8 +89,6 @@ class Testndsharray(unittest.TestCase):
         cls._end_test_event.clear()
         cls._test_process = multiprocessing.Process(target=_testing_process,
                                                     args=(cls._name,
-                                                          cls._command_queue_snd,
-                                                          cls._command_queue_rcv,
                                                           cls._is_initialized_event,
                                                           cls._write_event,
                                                           cls._read_write_event,
@@ -126,7 +122,8 @@ class Testndsharray(unittest.TestCase):
         _write_array: np.ndarray
         _read_array: np.ndarray
 
-        self._is_initialized_event.wait(timeout=5)  # 5 seconds timeout
+        self._write_event.clear()
+        self._read_write_event.clear()
 
         try:
 
@@ -137,8 +134,15 @@ class Testndsharray(unittest.TestCase):
                     
                     _write_array = (np.random.random(_size) * 255).astype(_type)
 
+                    _, _ = self._ndsharray_read.read()  # must be a first read before write
+
                     self._ndsharray_write.write(_write_array)
                     time.sleep(0.001)
+
+                    self._write_event.set()
+
+                    self._read_write_event.wait(timeout=5)
+                    self._read_write_event.clear()
 
                     status = False
                     _read_array = np.ndarray((1, ), dtype=_type)
@@ -149,7 +153,17 @@ class Testndsharray(unittest.TestCase):
                         time.sleep(0.001)
                     
                     if status:
-                        self.assertTrue(np.array_equal(_write_array, _read_array))
+                        _result = np.array_equal(_write_array, _read_array)
+                        if not _result:
+                            logger.error(("write_array: %s" % self._ndsharray_write.name).ljust(40) +
+                                         ("read_array %s" % self._ndsharray_read.name).ljust(40))
+                            logger.error(("\t shape: %s" % str(_write_array.shape)).ljust(40) +
+                                         ("\t shape: %s" % str(_read_array.shape)).ljust(40))
+                            logger.error(("\t type: %s" % str(_write_array.dtype)).ljust(40) +
+                                         ("\t type: %s" % str(_read_array.dtype)).ljust(40))
+                            logger.error(("\t dimension: %i" % _write_array.ndim).ljust(40) +
+                                         ("\t dimension: %i" % _read_array.ndim).ljust(40))
+                        self.assertTrue(_result)
                     else:
                         logger.error("The read NdShArray is invalid!")
                         if isinstance(_read_array, np.ndarray):
@@ -181,8 +195,6 @@ class Testndsharray(unittest.TestCase):
 
 
 def _testing_process(_name: str,
-                     _command_queue_snd: multiprocessing.Queue,
-                     _command_queue_rcv: multiprocessing.Queue,
                      _is_initialized_event: multiprocessing.Event,
                      _write_event: multiprocessing.Event,
                      _read_write_event: multiprocessing.Event,
@@ -191,8 +203,6 @@ def _testing_process(_name: str,
     """
 
     :param _name:
-    :param _command_queue_snd:
-    :param _command_queue_rcv:
     :param _is_initialized_event:
     :param _write_event:
     :param _read_write_event:
@@ -214,7 +224,6 @@ def _testing_process(_name: str,
     _nds_write = NdShArray("%s_copy" % _name, r_w="w")
 
     # signaling initialized
-    # time.sleep(0.1)
     _is_initialized_event.set()
     logger.info("... initialized.")
 
@@ -222,14 +231,18 @@ def _testing_process(_name: str,
         while not _end_test_event.is_set():
             time.sleep(0.001)
 
+            _write_event.wait(timeout=5)
+            _write_event.clear()
+
             _status = False
             _result = np.ndarray((1, 1))
-
             _timeout = 5
             _time_start = time.time()
             while not _status and (time.time() - _time_start) <= _timeout:
                 _status, _result = _nds_read.read()
                 time.sleep(0.001)
+
+            _read_write_event.set()
 
             _nds_write.write(_result)
             time.sleep(0.001)
