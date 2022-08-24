@@ -68,7 +68,6 @@ classifiers = [
     'Natural Language :: English',
     'License :: OSI Approved :: BSD License',
     'Operating System :: POSIX',
-    'Operating System :: UNIX',
     'Operating System :: Microsoft :: Windows',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3.6',
