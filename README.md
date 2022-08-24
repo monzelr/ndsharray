@@ -40,6 +40,11 @@ status, my_array = shared_array.read()
 print(my_array)
 ```
 
+Documentation
+-------------
+Can be found here: https://ndsharray.readthedocs.io/en/latest/
+
+
 Requirements
 ------------ 
 - Python ≥ 3.6
