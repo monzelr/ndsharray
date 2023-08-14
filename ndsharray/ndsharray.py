@@ -134,10 +134,12 @@ class NdShArray(object):
     def __del__(self):
 
         # closing the mmap
-        self._close_mmap(self._mmap, self._fd)
+        if hasattr(self, "_mmap"):
+            self._close_mmap(self._mmap, self._fd)
 
         # closing the ndarray mmap
-        self._close_mmap(self._ndarray_mmap, self._ndarray_fd)
+        if hasattr(self, "_ndarray_mmap"):
+            self._close_mmap(self._ndarray_mmap, self._ndarray_fd)
 
     @property
     def name(self) -> str:
@@ -457,6 +459,7 @@ class NdShArray(object):
         if os.name == "nt":
             if r_w == "w":
                 _mmap = mmap.mmap(-1, buffer_size, name, access=ACCESS_WRITE)
+                _mmap.flush()
             elif r_w == "r":
                 _mmap = mmap.mmap(-1, buffer_size, name, access=ACCESS_READ)
         elif os.name == "posix":
@@ -464,6 +467,7 @@ class NdShArray(object):
                 _fd = os.open("/dev/shm/%s" % name, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
                 os.truncate("/dev/shm/%s" % name, buffer_size)  # resize file
                 _mmap = mmap.mmap(_fd, buffer_size, MAP_SHARED)
+                _mmap.flush()
             elif r_w == "r":
                 _fd = os.open("/dev/shm/%s" % name, os.O_RDONLY)
                 _mmap = mmap.mmap(_fd, buffer_size, MAP_SHARED, PROT_READ)
