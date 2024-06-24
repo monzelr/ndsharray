@@ -5,7 +5,7 @@ from ndsharray.ndsharray import supported_types
 
 __author__ = 'Rune Monzel'
 __email__ = 'runemonzel@googlemail.com'
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 __all__ = ["NdShArray",
            "supported_types"]
 
