@@ -31,7 +31,7 @@ supported_types = [np.int8,
                    np.float64,
                    np.complex64,
                    np.complex128,
-                   np.bool]
+                   bool]
 
 """
 :var n_bytes_for_int: get the number of bytes for a python integer, this is python version and system dependent
