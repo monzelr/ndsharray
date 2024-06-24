@@ -2,8 +2,6 @@
 
 """The setup script."""
 
-import sys
-import os
 import io
 import os
 import re
@@ -54,10 +52,6 @@ def find_version_author_email(*file_paths):
 version, author, author_email = find_version_author_email(SOFTWARE_NAME, '__init__.py')
 
 
-# this is only necessary when not using setuptools/distribute
-from sphinx.setup_command import BuildDoc
-
-
 requirements = ["numpy"]
 
 test_requirements = ["numpy"]
@@ -96,7 +90,6 @@ setup(
     keywords=keywords,
     name=name,
     packages=[SOFTWARE_NAME],
-    cmdclass={'build_sphinx': BuildDoc},
     test_suite=test_suite,
     tests_require=test_requirements,
     url=url,
