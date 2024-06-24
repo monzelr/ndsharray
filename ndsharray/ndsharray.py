@@ -15,15 +15,23 @@ import warnings
 # external python packages
 import numpy as np
 
-_no_support = [np.object, str, bytes, np.void]  # those dtypes fails in unittest, so we just cherry-pick them out
 """
 :var supported_types: supported numpy dtype
 """
-supported_types = []
-for key, values in np.sctypes.items():
-    for value in values:
-        if value not in _no_support:
-            supported_types.append(value)
+supported_types = [np.int8,
+                   np.int16,
+                   np.int32,
+                   np.int64,
+                   np.uint8,
+                   np.uint16,
+                   np.uint32,
+                   np.uint64,
+                   np.float16,
+                   np.float32,
+                   np.float64,
+                   np.complex64,
+                   np.complex128,
+                   np.bool]
 
 """
 :var n_bytes_for_int: get the number of bytes for a python integer, this is python version and system dependent
