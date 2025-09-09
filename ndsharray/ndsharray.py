@@ -113,6 +113,9 @@ class NdShArray(object):
         self._last_write_time: float = 0.0  # set to zero to get in every case the next numpy array
         self._read_time_ms: float = 0.0
 
+        # write time will be saved to make sure it is increasing and unique
+        self._write_time: float = 0.0
+
         # unique identifier for the ndarray mmap name
         self._uuid: str = uuid.uuid4().hex
 
@@ -198,8 +201,7 @@ class NdShArray(object):
         """
         return self._read_time_ms
 
-    @staticmethod
-    def _array_to_bytes(array: np.ndarray) -> bytes:
+    def _array_to_bytes(self, array: np.ndarray) -> bytes:
         """
         encodes a numpy array to bytes using an own protocol
 
@@ -232,7 +234,11 @@ class NdShArray(object):
                                       "The following numpy.dtypes are supported: %s"
                                       % (str(array.dtype), str([_t.__name__ for _t in supported_types])))
 
-        _time = struct.pack("d", time.monotonic())
+        _now = time.monotonic()
+        if _now <= self._write_time:
+            _now = float(np.nextafter(self._write_time, float('inf')))  # +1 ULP
+        self._write_time = _now
+        _time = struct.pack("d", self._write_time)
 
         _bytes = b''
         _bytes += _time
@@ -448,7 +454,7 @@ class NdShArray(object):
                     self._ndarray_mmap, self._ndarray_fd = self._create_mmap(self.ndarray_mmap_name, self._buffer_size,
                                                                              r_w=self._access)
             except:
-                self.is_valid = False
+                self._is_valid = False
         return self._is_valid
 
     @staticmethod
