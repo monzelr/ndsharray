@@ -21,3 +21,9 @@ Version 1.1.1
 Version 1.1.2
 -------------
 - added support for numpy 2.x.x - no change in API
+
+Version 1.1.3
+-------------
+- added the 'unit in the last place' (ULP) to the time.monotonic() in the ndsharray.write() function so multiple writes in a milli seconds are possible
+- small fix for self.is_valid which has been written even it is not writeable
+- no change in API
